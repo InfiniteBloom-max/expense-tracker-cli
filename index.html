@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Expense Tracker CLI - Stop Stressing About Money</title>
+        <style>
+            * { margin : 0; padding : 0; box-sizing: border-box;}
+            
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.8;
+                color : #333;
+                background : linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height : 100vh;
+            }
+
+            header {
+                background: white;
+                padding : 40px 20px;
+                text-align: center;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+
+            h1 {
+                font-size: 2.2em;
+                color : #e91e73;
+                margin-bottom : 8px
+            }
+
+            .tagline {
+                font-size : 1.2em;
+                color : #666;
+                max-width : 600px;
+                margin : 0 auto;
+            }
+
+            .container {
+                max-width : 900px;
+                margin : 20px auto;
+                padding : 0 20px;
+            }
+
+            section {
+                background : white;
+                margin : 20px 0;
+                padding : 40px;
+                border-radius : 12px;
+                box-shadow : 0 4px 15px rgba(0,0,0,0.1);
+            }
+
+            h2 {
+                color : #e91e63;
+                margin : 30px 0 20px 0;
+                font-size : 1.8em;
+            }
+
+            p {
+                font-size : 1.05em;
+                margin : 15px 0;
+                color : #555;
+            }
+
+            .gird {
+              display : grid;
+              grid-template-columns : repeat(auto-fit , minmax(200px, 1fr));
+              gap : 15px;
+              margin : 20px 0;
+            }
+
+            .card {
+                background : linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color : white;
+                padding : 20px;
+                border-radius : 8px;
+                text-align : center;
+            }
+
+            .card h3 {
+                font-size : 2em;
+                margin-bottom : 5px;
+            }
+
+            button, .btn {
+                background : #e91e63;
+                color : white;
+                padding : 12px 30px;
+                border : none;
+                border-radius : 8px;
+                font-size : 1em;
+                cursor : pointer;
+                transition : all 0.3s;
+                display : inline-block;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            button:hover , .btn:hover {
+                background : #c2185b;
+                transform : translateY(-2px);
+                box-shadow : 0 6px 20px rgba(233, 30, 99, 0.3);
+            }
+
+            .code {
+                background : #c2185b;
+                color : #0f0;
+                padding : 20px;
+                border-radius : 8px;
+                font-family :'Courier New', monospace;
+                overflow-x: auto;
+                margin : 15px 0;
+                line-height: 1.6;
+            }
+
+            .code-line {margin : 8px 0;}
+            .comment {color : #888;}
+
+            .features {
+                display : grid;
+                grid-template-columns : repeat(2, 1fr);
+                gap : 15px;
+                margin : 20px 0;
+            }
+
+            .feature {
+                display : flex;
+                align-items : center;
+                gap : 12px;
+                padding : 15px;
+                background : #f9f9f9;
+                border-radius : 8px;
+                border-left : 4px solid #e91e63;
+            }
+
+            .feature span {
+                font-size : 1.8em;
+            }
+
+            .feature p {
+                margin : 0;
+                font-size : 0.95em;
+            }
+
+            .tabs {
+                display : flex;
+                gap : 10px;
+                margin : 20px 0;
+                border-bottom : 2px solid #eee;
+            }
+
+            .tab-btn {
+                padding : 10px 20px;
+                background : none;
+                border : none;
+                color : #666;
+                cursor : pointer;
+                font-weight : bold;
+                border-bottom : 3px solid transaprent;
+                transition : all 0.3s;
+            }
+
+            .tab-btn.active {
+                color : #e91e63;
+                border-bottom-color : #e91e63;
+            }
+
+            .tab-content { display : none;}
+            .tab-content.active {display : block ; animation : fadeIn 0.3s;}
+
+            @keyframes fadeIn { from {opacity : 0;} to {opacity : 1;}}
+
+            footer {
+                background : white;
+                text-align : center;
+                padding : 30px;
+                margin-top : 40px;
+                color : #666;
+                border-top : 3px solid #e91e63;
+            }
+
+            .hero {
+                text-align : center;
+                margin-bottom : 40px;
+            }
+
+            .hero p {
+                font-size : 1.15em;
+                color : #666;
+                margin : 20px 0;
+            }
+
+            .button-group {
+                display : flex;
+                gap : 15px;
+                justify-content: center;
+                flex-wrap : wrap;
+                margin : 30px 0;
+            }
+
+            .highlight {
+                background : #fff3cd;
+                padding : 20px;
+                border-radius : 8px;
+                border-left : 4px solid #ffc107;
+                margin : 20px 0;
+            }
+
+            .quote {
+                font-size : italic;
+                color : #777;
+                border-left : 4px solid #e91e63;
+                padding-left : 20px;
+                margin : 20px 0;
+            }
+
+            @media (max-width : 768px){
+                h1 {font-size : 1.8em;}
+                .features {grid-template-columns : 1fr;}
+                section {padding : 20px;}
+                .button-group {flex-direction: column;}
+                button {width : 100%;}
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <header>
+        <h1> Expense Tracker CLI</h1>
+        <p class="tagline">Stop Stressing about money. Start tracking it. From your terminal</p>
+        </header>
+
+        <div class="container">
+            <section class ="hero">
+                <h2>Hey! You need this</h2>
+                <P>Tired of not knowing where your money goes ? Yeah, us too. That's why we built a simple expense tracker that actually works. No fancy app. No sign-up. Just pure, beutiful terminal magic </P>
+                <div class="button-group">
+                    <a href="#install" class="btn"> Get Started (2 min)</a>
+                    <a href="#demo" class="btn" style="background : #2196f3"> See it in Action</a>
+                </div>
+            </section>
+
+            <section> 
+                <h2>What Can you Actually Do?</h2>
+                <div class="features">
+                    <div class="feature">
+                        <p><strong>Add Expenses</strong> - Super fast , no friction</p>
+                    </div>
+                <div class="feature">
+                    <p><strong>See Your Money</strong> - Dashboard with real data</p>
+                </div>
+                <div class="feature">
+                    <p><strong>Set Budgets</strong> - Get alerts before you overspend </p>
+                </div>
+                <div class ="feature">
+                    <p><strong>Search & Filter</strong> - Find any expesne instantly</p>
+                </div>
+                <div class="feature">
+                    <p><strong>Track Trends</strong> - See Patterns in your spending</p>
+                </div>
+                <div class="feature">
+                    <p><strong>Export to CSV</strong> - Backup anytime</p>
+                </div>
+                </div>
+            </section>
+            
+            <section>
+                <h2>Look at how simple it is:</h2>
+                <div class="code">
+                    <div class="code-line comment"># Add an expense (seriously, 1 line) </div>
+                    <div class="code-line">$ python expense_tracker.py add -a 50 -c "Groceries" -d "Shopping"</div>
+                    <div class= "code-line" style="color : #0f0;">-$50.00 added to Groceries</div>
+                    <br>
+                    <div class="code-line comment"># See your dashbaord</div>
+                    <div class="code-line">$ python expense_tracker.py dashboard</div>
+                    <div class="code-line" style="color : #0f0;">This Month : $1,415.50 spent | $3,000 income | Net : $1,584.50</div>
+                    <br>
+                    <div class="code-line comment"># That's it. You're done.</div>
+                </div>
+            </section>
+
+
+            <section id="install">
+                <h2>Installation (Pick your OS)</h2>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab(event, 'win')">Windows</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'mac')">Mac</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'manual')">Just pip it</button>
+                </div>
+
+                <div id="win" class="tab-content active"> 
+                    <p><strong>1.</strong> Install Python from <a href="https://python.org" target="_blank" style="color : #e91e63;">python.org</a> (check "Add to PATH")</p>
+                    <p><strong>2.</strong>Open Powershell as Admin and run: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">.\setup.ps1</code></p>
+                    <p><strong>3.</strong> Done! Start tracking </p>
+                </div>
+
+                <div id="mac" class="tab-content">
+                    <p><strong>1.</strong> Open terminal and run : <code style="background : #f0f0f0; padding: 2px 6px; border-radius: 3px;">chmod +x setup.sh && ./setup.sh</code></p>
+                    <p><strong>2.</strong>That's it!</p>
+                    <p class="highlight"><strong>Pro Tip :</strong> Add alias to ~/.bashrc: <code style="background: #fff ; padding : 2px 6px;">alias expense='python expense_tracker.py'</code></p>
+                </div>
+
+                <div id="manual" class="tab-content">
+                    <p>Just run one line</p>
+                    <div class="code">pip install click rich pandas</div>
+                    <p>Then you're good to go!</p>
+                </div>
+            </section>
+
+            <section id="demo">
+                <h2>Try it Right Now</h2>
+                <p>See how fast expense tracking can be:</p>
+                <input type="number" id="amount" placeholder="Amount (50)" value="50" style ="padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; margin : 10px 0;">
+                <input type="text" id="cat" placeholder="Category (Groceries)" value = "Groceries" style ="padding : 10px; border : 1px solid #ddd; border-radius : 4px ; width : 100%; margin : 10px 0;">
+                <input type="text" id="desc" placeholder="Description (weekly shopping)" value = "weekly shopping" style="padding : 10px; border: 1px solid #ddd; border-radius : 4px; width: 100%; margin : 10px 0;">
+                <button onclick="demo()" style="width: 100%; margin-top : 10px;"> Simulate Adding Expense</button>
+                <div id="output" style="display: none; margin-top : 15px" class="code"></div>
+            </section>
+
+
+            <section>
+                <h2>By The Numbers</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>11</h3>
+                        <p>Powerful Commands</p>
+                    </div>
+                    <div class="card">
+                        <h3>650+</h3>
+                        <p>Lines of Code</p>
+                </div>
+                <div class="card">
+                    <h3>100%</h3>
+                    <p>Free Forever</p>
+                </div>
+            </section>
+
+
+            <section>
+                <h2>Common Questions</h2>
+                <p><strong>Is my data safe ?</strong><br> Yes ! Everything stays on your computer no cloud ! no spying</p>
+                <p><strong> Where does data go?</strong><br> Your home folder : ~/.expense_tracker/expenses.db (SQLite database)</p>
+                <p><strong>How much does it cost?</strong><br> Zero dollars. Free as in Freedom. Forever</p>
+                <p><strong>Is there documentation ?</strong> Yes the documents I have made it</p>
+            </section>
+
+            <div class="highlight">
+                <strong>About Project</strong> This took 6 hours to code the CLI application and 4 hours for the documeentation and the SETUP.ps1 files. No fluff. No bload Just something that works.
+            </div>
+
+
+
+
+
+        </div>
+
+
+        <script> 
+            function switchTab(e, id) {
+               document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+               docuent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+               document.getElementById(id).classList.add('active');
+               e.target.classList.add('active');
+
+            }
+
+            function demo() {
+                const amt = document.getElementById('amount').value || '50';
+                const category = document.getElementById('cat').value || 'Grocerries';
+                const desc = document.getElementById('desc').value || 'Shopping';
+                
+                const output = document.getElementById('output');
+                output.innerHTML = `$ python expense_tracker.py add -a ${amt} -c "${category}" -d "${desc}"\n-$${amt}.00 added to ${category}\n\n Success!`;
+                output.style.display = 'block';
+                output.scrollIntoView({behavior : 'smooth'});
+            }
+
+            document.addEventListener('keypress', e => {
+                if (e.key === 'Enter' && (e.target.id === 'amount' ||e.target.id === 'cat' || e.target.id === 'desc')) demo();
+            });
+        </script>
+    </body>
+</html>
