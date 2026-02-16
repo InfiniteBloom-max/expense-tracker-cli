@@ -67,7 +67,10 @@ def init_db():
         budget_limit REAL NOT NULL,
         month TEXT NOT NULL
         )
-""")
+    """)
+
+    conn.commit()
+    conn.close()
 
 def parse_date(date_str : str) -> str:
     """Parse various date formats and returns in format YYYY-MM-DD"""
