@@ -526,11 +526,91 @@ def dashboard():
 
     console.print()
 
-@cli.command()
-@click.argument("expense_id", type=int)
+    @cli.command()
+    @click.option("--category", "-c", required=True, help="Category to set budget for")
+    @click.option("--limit", "-l", type=float, required=True, help="Budget limit amount")
+    @click.option("--month", "-m", default=None, help="Month (YYYY-MM) or current month")
 
-# delete function 
-def delete(expense_id : int):
+    def budget(category: str, limit: float, month: Optional[str]):
+     """Set budget limit for a category"""
+     if not month:
+         month = datetime.now().strftime("%Y-%m")
+
+     conn = get_connection()
+     cursor = conn.cursor()
+
+     # Delete existing budget for this category and month
+     cursor.execute("DELETE FROM budgets WHERE category = ? AND month = ?", (category, month))
+     
+     # Insert new budget
+     cursor.execute("""
+         INSERT INTO budgets (category, budget_limit, month)
+         VALUES (?, ?, ?)
+     """, (category, limit, month))
+     
+     conn.commit()
+     conn.close()
+     
+     console.print(f"[green]Budget of ${limit:.2f} set for {category} in {month}[/green]")
+
+    @cli.command()
+    @click.option("--month", "-m", default=None, help="Month (YYYY-MM) or current month")
+
+    def budget_status(month: Optional[str]):
+     """Show budget status for all categories"""
+     if not month:
+         month = datetime.now().strftime("%Y-%m")
+
+     conn = get_connection()
+     cursor = conn.cursor()
+
+     cursor.execute("""
+         SELECT b.category, b.budget_limit, COALESCE(SUM(e.amount), 0) as spent
+         FROM budgets b
+         LEFT JOIN expenses e ON b.category = e.category 
+             AND e.type = 'expense'
+             AND strftime('%Y-%m', e.date) = ?
+         WHERE b.month = ?
+         GROUP BY b.category
+         ORDER BY spent DESC
+     """, (month, month))
+
+     rows = cursor.fetchall()
+     conn.close()
+
+     if not rows:
+         console.print(f"[yellow]No budgets set for {month}[/yellow]")
+         return
+
+     table = Table(title=f"Budget Status - {month}")
+     table.add_column("Category", style="magenta")
+     table.add_column("Budget", style="cyan", justify="right")
+     table.add_column("Spent", style=COLOR_EXPENSE, justify="right")
+     table.add_column("Remaining", justify="right")
+     table.add_column("% Used", justify="right")
+
+     for row in rows:
+         category, budget_limit, spent = row[0], row[1], row[2]
+         remaining = budget_limit - spent
+         pct_used = (spent / budget_limit * 100) if budget_limit > 0 else 0
+
+         pct_color = "red" if pct_used > 100 else "yellow" if pct_used > 80 else "green"
+         
+         table.add_row(
+             category,
+             f"${budget_limit:.2f}",
+             f"${spent:.2f}",
+             f"[{('red' if remaining < 0 else 'green')}]${remaining:.2f}[/]",
+             f"[{pct_color}]{pct_used:.1f}%[/]"
+         )
+
+     console.print(table)
+
+    @cli.command()
+    @click.argument("expense_id", type=int)
+
+    # delete function 
+    def delete(expense_id : int):
     """Delete an expense by ID"""
     conn = get_connection()
     cursor = conn.cursor()
