@@ -631,6 +631,52 @@ def dashboard():
     conn.close()
 
 @cli.command()
+@click.argument("query", required=True)
+@click.option("--type", "-t", type=click.Choice(["all", "expense", "income"]), default="all", help="Filter by type")
+
+def search(query: str, type: str):
+     """Search expenses by description or category"""
+     conn = get_connection()
+     cursor = conn.cursor()
+
+     sql = "SELECT * FROM expenses WHERE (description LIKE ? OR category LIKE ?) AND 1=1"
+     params = [f"%{query}%", f"%{query}%"]
+
+     if type != "all":
+         sql += " AND type = ?"
+         params.append(type)
+
+     sql += " ORDER BY date DESC"
+
+     cursor.execute(sql, params)
+     rows = cursor.fetchall()
+     conn.close()
+
+     if not rows:
+         console.print(f"[yellow]No results found for '{query}'[/yellow]")
+         return
+
+     table = Table(title=f"Search Results for '{query}'")
+     table.add_column("Date", style=COLOR_NEUTRAL)
+     table.add_column("Category", style="magenta")
+     table.add_column("Description", style="white")
+     table.add_column("Amount", justify="right")
+     table.add_column("Type", justify="right")
+
+     for row in rows:
+         color = COLOR_INCOME if row[4] == "income" else COLOR_EXPENSE
+         amount_str = f"+${row[2]:.2f}" if row[4] == "income" else f"-${row[2]:.2f}"
+         table.add_row(
+             row[1],
+             row[3],
+             row[5] or "-",
+             f"[{color}]{amount_str}[/{color}]",
+             row[4]
+         )
+
+     console.print(table)
+
+@cli.command()
 
 def categories():
     """Show all categories used"""
