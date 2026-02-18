@@ -17,7 +17,7 @@ from rich.console import Console
 from rich.table import Table 
 from rich.panel import Panel 
 from rich import print as rprint 
-from rich.style import style 
+from rich.style import Style 
 from rich.text import Text 
 
 # Initialize rich console 
@@ -246,10 +246,10 @@ def summary(month: Optional[str]):
     table.add_column("Net", style="cyan", justify="right")
 
     categories = {}
-     for row in rows:
-         if row[0] not in categories: 
-             categories[row[0]] = {"expense": 0, "income": 0}
-         categories[row[0]][row[1]] = row[2]
+    for row in rows:
+        if row[0] not in categories: 
+            categories[row[0]] = {"expense": 0, "income": 0}
+        categories[row[0]][row[1]] = row[2]
 
 
     
@@ -475,11 +475,11 @@ def dashboard():
     # Last 7 days
     last_7_days = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     cursor.execute("""
-         SELECT SUM(amount) as total FROM expenses
-         WHERE date >= ? AND type = "expense"
-     """, (last_7_days,))
+        SELECT SUM(amount) as total FROM expenses
+        WHERE date >= ? AND type = "expense"
+    """, (last_7_days,))
 
-     week_expense = cursor.fetchone()[0] or 0
+    week_expense = cursor.fetchone()[0] or 0
 
     # Categories breakdown 
     cursor.execute("""
@@ -611,17 +611,17 @@ def dashboard():
 
     # delete function 
     def delete(expense_id : int):
-    """Delete an expense by ID"""
-    conn = get_connection()
-    cursor = conn.cursor()
+        """Delete an expense by ID"""
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM expenses WHERE id = ?", (expense_id,))
-    expense = cursor.fetchone()
+        cursor.execute("SELECT * FROM expenses WHERE id = ?", (expense_id,))
+        expense = cursor.fetchone()
 
-    if not expense:
-        console.print("[red]Expense not found[/red]")
-        conn.close()
-        return 
+        if not expense:
+            console.print("[red]Expense not found[/red]")
+            conn.close()
+            return
 
     if click.confirm(f"Delete '{expense['description']}' (${expense['amount']:.2f})?"):
         cursor.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
