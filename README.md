@@ -3,7 +3,7 @@ A powerful , user-firendly command-line interface tracking application built wit
 
 ## Features 
 
-** Core Feature **
+Core Feature 
 - Add expenses/income with dates, categories and descriptions
 - List expenses with filtering (date range, category , type)
 - Monthly summaries grouped by categories
@@ -138,16 +138,16 @@ when prompted for confirmation, use:
 
 ## Troubleshooting (COMMON PROBLEMS)
 
-** Where is my data stored ? **
+ Where is my data stored ? 
 A : `~/.expense_tracker/expenses.db`
 
-** Can I delete an expense ? **
+ Can I delete an expense ? 
 A : Yes, use the `delete` command with the expense id (visible in list output)
 
-** can I edit an expense ? **
+ can I edit an expense ? 
 A : Delete and re-add it for now (havent implemenented a edit feature)
 
-** How do I backup my data ? **
+ How do I backup my data ? 
 A : Use `export` to create CSV backups, or copy the `.expense_tracker` folder
 
 ## License 
